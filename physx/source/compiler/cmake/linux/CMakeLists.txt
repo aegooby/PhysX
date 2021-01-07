@@ -32,10 +32,12 @@ SET(GCC_WARNINGS "-Wall -Werror -Wno-invalid-offsetof -Wno-uninitialized")
 
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 	# using Clang
-	SET(PHYSX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a -Wno-alloca -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -fstrict-aliasing -faligned-allocation ${CLANG_WARNINGS}" CACHE INTERAL "PhysX CXX")
+	SET(PHYSX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -fstrict-aliasing -faligned-allocation ${CLANG_WARNINGS}" CACHE INTERAL "PhysX CXX")
 ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-	SET(PHYSX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a -Wno-alloca -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -fno-strict-aliasing -faligned-allocation ${GCC_WARNINGS}" CACHE INTERAL "PhysX CXX")
+	SET(PHYSX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -fno-strict-aliasing -faligned-allocation ${GCC_WARNINGS}" CACHE INTERAL "PhysX CXX")
 ENDIF()
+
+SET(PHYSX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-alloca")
 
 # Build debug info for all configurations
 SET(PHYSX_CXX_FLAGS_DEBUG   "-O0 -g3 -gdwarf-2" CACHE INTERNAL "PhysX Debug CXX Flags")
