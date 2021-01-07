@@ -25,7 +25,7 @@
 //
 // Copyright (c) 2008-2019 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
-// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
+// Copyright (c) 2001-2004 NovodeX AG. All rights reserved.
 
 #ifndef GU_GJKTYPE_H
 #define GU_GJKTYPE_H
@@ -37,141 +37,229 @@ namespace physx
 {
 namespace Gu
 {
-	class ConvexHullV;
-	class ConvexHullNoScaleV;
-	class BoxV;
+class ConvexHullV;
+class ConvexHullNoScaleV;
+class BoxV;
 
-	template <typename Convex> struct ConvexGeom { typedef Convex Type; };
-	template <> struct ConvexGeom<ConvexHullV> { typedef ConvexHullV Type; };
-	template <> struct ConvexGeom<ConvexHullNoScaleV> { typedef ConvexHullNoScaleV Type; };
-	template <> struct ConvexGeom<BoxV> { typedef BoxV Type; };
+template<typename Convex>
+struct ConvexGeom
+{
+    typedef Convex Type;
+};
+template<>
+struct ConvexGeom<ConvexHullV>
+{
+    typedef ConvexHullV Type;
+};
+template<>
+struct ConvexGeom<ConvexHullNoScaleV>
+{
+    typedef ConvexHullNoScaleV Type;
+};
+template<>
+struct ConvexGeom<BoxV>
+{
+    typedef BoxV Type;
+};
 
-	struct GjkConvexBase
-	{
-		
-		GjkConvexBase(const ConvexV& convex) : mConvex(convex){}
-		PX_FORCE_INLINE Ps::aos::FloatV	getMinMargin()		const { return mConvex.getMinMargin();		} 
-		PX_FORCE_INLINE Ps::aos::BoolV	isMarginEqRadius()	const { return mConvex.isMarginEqRadius();	}
-		PX_FORCE_INLINE bool			getMarginIsRadius()	const { return mConvex.getMarginIsRadius();	}
-		PX_FORCE_INLINE Ps::aos::FloatV	getMargin()			const { return mConvex.getMargin();			}
-		
+struct GjkConvexBase
+{
 
-		template <typename Convex>
-		PX_FORCE_INLINE const Convex& getConvex() const { return static_cast<const Convex&>(mConvex); }
+    GjkConvexBase(const ConvexV& convex) : mConvex(convex) { }
+    PX_FORCE_INLINE Ps::aos::FloatV getMinMargin() const
+    {
+        return mConvex.getMinMargin();
+    }
+    PX_FORCE_INLINE Ps::aos::BoolV isMarginEqRadius() const
+    {
+        return mConvex.isMarginEqRadius();
+    }
+    PX_FORCE_INLINE bool getMarginIsRadius() const
+    {
+        return mConvex.getMarginIsRadius();
+    }
+    PX_FORCE_INLINE Ps::aos::FloatV getMargin() const
+    {
+        return mConvex.getMargin();
+    }
 
-		virtual Ps::aos::Vec3V supportPoint(const PxI32 index) const = 0;
-		virtual Ps::aos::Vec3V support(const Ps::aos::Vec3VArg v) const = 0;
-		virtual Ps::aos::Vec3V support(const Ps::aos::Vec3VArg dir, PxI32& index) const = 0;
-		virtual Ps::aos::FloatV getSweepMargin() const = 0;
-		virtual Ps::aos::Vec3V	getCenter() const = 0;
-		virtual ~GjkConvexBase(){}
-	
-	
-	private:
-		GjkConvexBase& operator = (const GjkConvexBase&);
-	protected:
-		const ConvexV& mConvex;
-	};
+    template<typename Convex>
+    PX_FORCE_INLINE const Convex& getConvex() const
+    {
+        return static_cast<const Convex&>(mConvex);
+    }
 
-	struct GjkConvex : public GjkConvexBase
-	{
-		GjkConvex(const ConvexV& convex) : GjkConvexBase(convex) { }
+    virtual Ps::aos::Vec3V  supportPoint(const PxI32 index) const    = 0;
+    virtual Ps::aos::Vec3V  support(const Ps::aos::Vec3VArg v) const = 0;
+    virtual Ps::aos::Vec3V  support(const Ps::aos::Vec3VArg dir,
+                                    PxI32&                  index) const              = 0;
+    virtual Ps::aos::FloatV getSweepMargin() const                   = 0;
+    virtual Ps::aos::Vec3V  getCenter() const                        = 0;
+    virtual ~GjkConvexBase() { }
 
-		virtual Ps::aos::Vec3V supportPoint(const PxI32 index) const { return doVirtualSupportPoint(index); }
-		virtual Ps::aos::Vec3V support(const Ps::aos::Vec3VArg v) const { return doVirtualSupport(v); }
-		virtual Ps::aos::Vec3V support(const Ps::aos::Vec3VArg dir, PxI32& index) const{ return doVirtualSupport(dir, index); }
+private:
+    GjkConvexBase& operator=(const GjkConvexBase&);
 
-		virtual Ps::aos::FloatV getSweepMargin() const { return doVirtualGetSweepMargin(); }
+protected:
+    const ConvexV& mConvex;
+};
 
-	private:
-		Ps::aos::Vec3V doVirtualSupportPoint(const PxI32 index) const
-		{
-			return supportPoint(index); //Call the v-table
-		}
-		Ps::aos::Vec3V doVirtualSupport(const Ps::aos::Vec3VArg v) const
-		{
-			return support(v); //Call the v-table
-		}
-		Ps::aos::Vec3V doVirtualSupport(const Ps::aos::Vec3VArg dir, PxI32& index) const
-		{
-			return support(dir, index); //Call the v-table
-		}
+struct GjkConvex : public GjkConvexBase
+{
+    GjkConvex(const ConvexV& convex) : GjkConvexBase(convex) { }
 
-		Ps::aos::FloatV doVirtualGetSweepMargin() const { return getSweepMargin(); }
+    virtual Ps::aos::Vec3V supportPoint(const PxI32 index) const
+    {
+        return doVirtualSupportPoint(index);
+    }
+    virtual Ps::aos::Vec3V support(const Ps::aos::Vec3VArg v) const
+    {
+        return doVirtualSupport(v);
+    }
+    virtual Ps::aos::Vec3V support(const Ps::aos::Vec3VArg dir,
+                                   PxI32&                  index) const
+    {
+        return doVirtualSupport(dir, index);
+    }
 
-		GjkConvex& operator = (const GjkConvex&);
-	};
+    virtual Ps::aos::FloatV getSweepMargin() const
+    {
+        return doVirtualGetSweepMargin();
+    }
 
-	template <typename Convex>
-	struct LocalConvex : public GjkConvex
-	{
-		LocalConvex(const Convex& convex) : GjkConvex(convex){}
+private:
+    Ps::aos::Vec3V doVirtualSupportPoint(const PxI32 index) const
+    {
+        return supportPoint(index); // Call the v-table
+    }
+    Ps::aos::Vec3V doVirtualSupport(const Ps::aos::Vec3VArg v) const
+    {
+        return support(v); // Call the v-table
+    }
+    Ps::aos::Vec3V doVirtualSupport(const Ps::aos::Vec3VArg dir,
+                                    PxI32&                  index) const
+    {
+        return support(dir, index); // Call the v-table
+    }
 
+    Ps::aos::FloatV doVirtualGetSweepMargin() const
+    {
+        return getSweepMargin();
+    }
 
-		PX_FORCE_INLINE Ps::aos::Vec3V supportPoint(const PxI32 index) const { return getConvex<Convex>().supportPoint(index); }
-		Ps::aos::Vec3V support(const Ps::aos::Vec3VArg v) const { return getConvex<Convex>().supportLocal(v); }
-		Ps::aos::Vec3V support(const Ps::aos::Vec3VArg dir, PxI32& index) const
-		{
-			return getConvex<Convex>().supportLocal(dir, index);
-		}
+    GjkConvex& operator=(const GjkConvex&);
+};
 
-		virtual Ps::aos::Vec3V getCenter() const { return getConvex<Convex>().getCenter(); }
+template<typename Convex>
+struct LocalConvex : public GjkConvex
+{
+    LocalConvex(const Convex& convex) : GjkConvex(convex) { }
 
-		//ML: we can't force inline function, otherwise win modern will throw compiler error
-		PX_INLINE LocalConvex<typename ConvexGeom<Convex>::Type > getGjkConvex() const
-		{
-			return LocalConvex<typename ConvexGeom<Convex>::Type >(static_cast<const typename ConvexGeom<Convex>::Type&>(GjkConvex::mConvex));
-		}
+    PX_FORCE_INLINE Ps::aos::Vec3V supportPoint(const PxI32 index) const
+    {
+        return getConvex<Convex>().supportPoint(index);
+    }
+    Ps::aos::Vec3V support(const Ps::aos::Vec3VArg v) const
+    {
+        return getConvex<Convex>().supportLocal(v);
+    }
+    Ps::aos::Vec3V support(const Ps::aos::Vec3VArg dir, PxI32& index) const
+    {
+        return getConvex<Convex>().supportLocal(dir, index);
+    }
 
-		PX_INLINE Ps::aos::FloatV getSweepMargin() const { return getConvex<Convex>().getSweepMargin(); }
+    virtual Ps::aos::Vec3V getCenter() const
+    {
+        return getConvex<Convex>().getCenter();
+    }
 
-		typedef LocalConvex<typename ConvexGeom<Convex>::Type > ConvexGeomType;
+    // ML: we can't force inline function, otherwise win modern will throw
+    // compiler error
+    PX_INLINE LocalConvex<typename ConvexGeom<Convex>::Type>
+              getGjkConvex() const
+    {
+        return LocalConvex<typename ConvexGeom<Convex>::Type>(
+            static_cast<const typename ConvexGeom<Convex>::Type&>(
+                GjkConvex::mConvex));
+    }
 
-		typedef Convex	Type;
+    PX_INLINE Ps::aos::FloatV getSweepMargin() const
+    {
+        return getConvex<Convex>().getSweepMargin();
+    }
 
+    typedef LocalConvex<typename ConvexGeom<Convex>::Type> ConvexGeomType;
 
-	private:
-		LocalConvex<Convex>& operator = (const LocalConvex<Convex>&);
-	};
+    typedef Convex Type;
 
-	template <typename Convex>
-	struct RelativeConvex : public GjkConvex
-	{
-		RelativeConvex(const Convex& convex, const Ps::aos::PsMatTransformV& aToB) : GjkConvex(convex), mAToB(aToB), mAToBTransposed(aToB)
-		{
-			shdfnd::aos::V3Transpose(mAToBTransposed.rot.col0, mAToBTransposed.rot.col1, mAToBTransposed.rot.col2);
-		}
+private:
+    LocalConvex<Convex>& operator=(const LocalConvex<Convex>&);
+};
 
-		PX_FORCE_INLINE Ps::aos::Vec3V supportPoint(const PxI32 index) const { return mAToB.transform(getConvex<Convex>().supportPoint(index)); }
-		Ps::aos::Vec3V support(const Ps::aos::Vec3VArg v) const { return getConvex<Convex>().supportRelative(v, mAToB, mAToBTransposed); }
-		Ps::aos::Vec3V support(const Ps::aos::Vec3VArg dir, PxI32& index) const
-		{
-			return getConvex<Convex>().supportRelative(dir, mAToB, mAToBTransposed, index);
-		}
+template<typename Convex>
+struct RelativeConvex : public GjkConvex
+{
+    RelativeConvex(const Convex& convex, const Ps::aos::PsMatTransformV& aToB)
+        : GjkConvex(convex), mAToB(aToB), mAToBTransposed(aToB)
+    {
+        shdfnd::aos::V3Transpose(mAToBTransposed.rot.col0,
+                                 mAToBTransposed.rot.col1,
+                                 mAToBTransposed.rot.col2);
+    }
 
-		virtual Ps::aos::Vec3V getCenter() const { return mAToB.transform(getConvex<Convex>().getCenter()); }
+    PX_FORCE_INLINE Ps::aos::Vec3V supportPoint(const PxI32 index) const
+    {
+        return mAToB.transform(getConvex<Convex>().supportPoint(index));
+    }
+    Ps::aos::Vec3V support(const Ps::aos::Vec3VArg v) const
+    {
+        return getConvex<Convex>().supportRelative(v, mAToB, mAToBTransposed);
+    }
+    Ps::aos::Vec3V support(const Ps::aos::Vec3VArg dir, PxI32& index) const
+    {
+        return getConvex<Convex>().supportRelative(dir, mAToB, mAToBTransposed,
+                                                   index);
+    }
 
-		PX_FORCE_INLINE Ps::aos::PsMatTransformV& getRelativeTransform(){ return mAToB; }
+    virtual Ps::aos::Vec3V getCenter() const
+    {
+        return mAToB.transform(getConvex<Convex>().getCenter());
+    }
 
-		//ML: we can't force inline function, otherwise win modern will throw compiler error
-		PX_INLINE RelativeConvex<typename ConvexGeom<Convex>::Type > getGjkConvex() const
-		{
-			return RelativeConvex<typename ConvexGeom<Convex>::Type >(static_cast<const typename ConvexGeom<Convex>::Type&>(GjkConvex::mConvex), mAToB);
-		}
+    PX_FORCE_INLINE Ps::aos::PsMatTransformV& getRelativeTransform()
+    {
+        return const_cast<Ps::aos::PsMatTransformV&>(mAToB);
+    }
 
-		PX_INLINE Ps::aos::FloatV getSweepMargin() const { return getConvex<Convex>().getSweepMargin(); }
+    // ML: we can't force inline function, otherwise win modern will throw
+    // compiler error
+    PX_INLINE RelativeConvex<typename ConvexGeom<Convex>::Type>
+              getGjkConvex() const
+    {
+        return RelativeConvex<typename ConvexGeom<Convex>::Type>(
+            static_cast<const typename ConvexGeom<Convex>::Type&>(
+                GjkConvex::mConvex),
+            mAToB);
+    }
 
-		typedef RelativeConvex<typename ConvexGeom<Convex>::Type > ConvexGeomType;
+    PX_INLINE Ps::aos::FloatV getSweepMargin() const
+    {
+        return getConvex<Convex>().getSweepMargin();
+    }
 
-		typedef Convex	Type;
+    typedef RelativeConvex<typename ConvexGeom<Convex>::Type> ConvexGeomType;
 
-	private:
-		RelativeConvex<Convex>& operator = (const RelativeConvex<Convex>&);
-		const Ps::aos::PsMatTransformV& mAToB;
-		Ps::aos::PsMatTransformV mAToBTransposed;	// PT: precomputed mAToB transpose (because 'rotate' is faster than 'rotateInv')
-	};
+    typedef Convex Type;
 
-}
-}
+private:
+    RelativeConvex<Convex>&         operator=(const RelativeConvex<Convex>&);
+    const Ps::aos::PsMatTransformV& mAToB;
+    Ps::aos::PsMatTransformV
+        mAToBTransposed; // PT: precomputed mAToB transpose (because 'rotate' is
+                         // faster than 'rotateInv')
+};
+
+} // namespace Gu
+} // namespace physx
 
 #endif
