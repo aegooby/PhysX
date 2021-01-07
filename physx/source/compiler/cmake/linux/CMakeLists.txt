@@ -37,7 +37,7 @@ ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	SET(PHYSX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -fno-strict-aliasing -faligned-allocation ${GCC_WARNINGS}" CACHE INTERAL "PhysX CXX")
 ENDIF()
 
-SET(PHYSX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-alloca")
+SET(PHYSX_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-alloca -Wno-implicit-int-float-conversion")
 
 # Build debug info for all configurations
 SET(PHYSX_CXX_FLAGS_DEBUG   "-O0 -g3 -gdwarf-2" CACHE INTERNAL "PhysX Debug CXX Flags")
